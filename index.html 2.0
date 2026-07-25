@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Fuerza Apex</title>
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --accent-red: #ef4444;
+      --accent-blue: #38bdf8;
+      --text-main: #f3f4f6;
+      --text-sub: #9ca3af;
+      --border: #30363d;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      text-align: center;
+    }
+
+    /* Pestañas (Tabs) */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active-bruta {
+      background-color: #3b0764;
+      border-color: #a855f7;
+      color: #e9d5ff;
+    }
+
+    .tab-btn.active-combate {
+      background-color: #450a0a;
+      border-color: var(--accent-red);
+      color: #fecaca;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-field.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+    }
+
+    input[type="number"] {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent-blue);
+    }
+
+    button.btn-calc {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-bruta { background-color: #a855f7; color: #fff; }
+    .btn-combate { background-color: var(--accent-red); color: #fff; }
+
+    button.btn-calc:hover { opacity: 0.9; }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 16px;
+      background-color: var(--bg-color);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: none;
+      text-align: center;
+    }
+
+    .result-number {
+      font-size: 2.8rem;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+
+    .details {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active-bruta" id="btnTab1" onclick="switchTab('bruta')">🏋️ Fuerza Bruta</button>
+      <button class="tab-btn" id="btnTab2" onclick="switchTab('combate')">🥊 Combate</button>
+    </div>
+
+    <!-- VENTANA 1: FUERZA BRUTA -->
+    <div id="tabBruta" class="tab-content active">
+      <h1 style="color: #a855f7;">Límite de Fuerza Bruta</h1>
+      <div class="input-grid">
+        <div class="input-field">
+          <label>Peso Muerto (kg)</label>
+          <input type="number" id="bDeadlift" placeholder="ej. 150">
+        </div>
+        <div class="input-field">
+          <label>Sentadilla (kg)</label>
+          <input type="number" id="bSquat" placeholder="ej. 130">
+        </div>
+        <div class="input-field">
+          <label>Press Banca (kg)</label>
+          <input type="number" id="bBench" placeholder="ej. 100">
+        </div>
+        <div class="input-field">
+          <label>Agarre (kg)</label>
+          <input type="number" id="bGrip" placeholder="ej. 60">
+        </div>
+        <div class="input-field">
+          <label>Flexiones (max)</label>
+          <input type="number" id="bPushups" placeholder="ej. 40">
+        </div>
+        <div class="input-field">
+          <label>Dominadas (max)</label>
+          <input type="number" id="bPullups" placeholder="ej. 15">
+        </div>
+      </div>
+      <button class="btn-calc btn-bruta" onclick="calcularBruta()">Calcular Fuerza Bruta</button>
+      
+      <div class="result-box" id="resBruta">
+        <span style="color: var(--text-sub); font-size: 0.85rem;">Potencia Bruta Estimada</span>
+        <div class="result-number" id="numBruta" style="color: #a855f7;">--</div>
+        <div class="details" id="detBruta"></div>
+      </div>
+    </div>
+
+    <!-- VENTANA 2: FUERZA DE COMBATE -->
+    <div id="tabCombate" class="tab-content">
+      <h1 style="color: var(--accent-red);">Fuerza de Combate Peak</h1>
+      <div class="input-grid">
+        <div class="input-field">
+          <label>Estatura (cm)</label>
+          <input type="number" id="cHeight" placeholder="ej. 185">
+        </div>
+        <div class="input-field">
+          <label>Peso Corporal (kg)</label>
+          <input type="number" id="cWeight" placeholder="ej. 90">
+        </div>
+        <div class="input-field">
+          <label>Peso Muerto (kg)</label>
+          <input type="number" id="cDeadlift" placeholder="ej. 250">
+        </div>
+        <div class="input-field">
+          <label>Sentadilla (kg)</label>
+          <input type="number" id="cSquat" placeholder="ej. 220">
+        </div>
+        <div class="input-field">
+          <label>Press Banca (kg)</label>
+          <input type="number" id="cBench" placeholder="ej. 160">
+        </div>
+        <div class="input-field">
+          <label>Dominadas (max)</label>
+          <input type="number" id="cPullups" placeholder="ej. 35">
+        </div>
+        <div class="input-field full-width">
+          <label>Flexiones de Pecho (max)</label>
+          <input type="number" id="cPushups" placeholder="ej. 100">
+        </div>
+      </div>
+      <button class="btn-calc btn-combate" onclick="calcularCombate()">Calcular Nivel de Combate</button>
+
+      <div class="result-box" id="resCombate">
+        <span style="color: var(--text-sub); font-size: 0.85rem;">Eficacia de Peleador Apex</span>
+        <div class="result-number" id="numCombate" style="color: var(--accent-red);">--</div>
+        <div class="details" id="detCombate"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.getElementById('tabBruta').classList.remove('active');
+      document.getElementById('tabCombate').classList.remove('active');
+      document.getElementById('btnTab1').className = 'tab-btn';
+      document.getElementById('btnTab2').className = 'tab-btn';
+
+      if (tab === 'bruta') {
+        document.getElementById('tabBruta').classList.add('active');
+        document.getElementById('btnTab1').className = 'tab-btn active-bruta';
+      } else {
+        document.getElementById('tabCombate').classList.add('active');
+        document.getElementById('btnTab2').className = 'tab-btn active-combate';
+      }
+    }
+
+    function calcularBruta() {
+      const deadlift = parseFloat(document.getElementById('bDeadlift').value) || 0;
+      const squat = parseFloat(document.getElementById('bSquat').value) || 0;
+      const bench = parseFloat(document.getElementById('bBench').value) || 0;
+      const grip = parseFloat(document.getElementById('bGrip').value) || 0;
+      const pushups = parseFloat(document.getElementById('bPushups').value) || 0;
+      const pullups = parseFloat(document.getElementById('bPullups').value) || 0;
+
+      // Estándares absolutos para 100% de Fuerza Bruta
+      const scoreDeadlift = Math.min(deadlift / 400, 1) * 25;
+      const scoreSquat = Math.min(squat / 350, 1) * 25;
+      const scoreBench = Math.min(bench / 250, 1) * 20;
+      const scoreGrip = Math.min(grip / 150, 1) * 10;
+      const scorePushups = Math.min(pushups / 100, 1) * 10;
+      const scorePullups = Math.min(pullups / 40, 1) * 10;
+
+      const totalScore = Math.min(Math.round(scoreDeadlift + scoreSquat + scoreBench + scoreGrip + scorePushups + scorePullups), 100);
+
+      let rango = "Novato";
+      if (totalScore > 85) rango = "Fuerza Mítica / Strongman";
+      else if (totalScore > 65) rango = "Atleta de Élite";
+      else if (totalScore > 40) rango = "Nivel Intermedio Avanzado";
+
+      document.getElementById('numBruta').innerText = totalScore + "%";
+      document.getElementById('detBruta').innerHTML = `<strong>Rango:</strong> ${rango}<br>Puntaje basado en límites de levantamiento absoluto.`;
+      document.getElementById('resBruta').style.display = 'block';
+    }
+
+    function calcularCombate() {
+      const height = parseFloat(document.getElementById('cHeight').value) || 175;
+      const weight = parseFloat(document.getElementById('cWeight').value) || 75;
+      const deadlift = parseFloat(document.getElementById('cDeadlift').value) || 0;
+      const squat = parseFloat(document.getElementById('cSquat').value) || 0;
+      const bench = parseFloat(document.getElementById('cBench').value) || 0;
+      const pullups = parseFloat(document.getElementById('cPullups').value) || 0;
+      const pushups = parseFloat(document.getElementById('cPushups').value) || 0;
+
+      // Multiplicadores óptimos basados en el peso corporal para Peleador Peak
+      const ratioDeadlift = deadlift / weight; // Objetivo 3.0x
+      const ratioSquat = squat / weight;       // Objetivo 2.6x
+      const ratioBench = bench / weight;       // Objetivo 1.9x
+
+      const scoreDL = Math.min(ratioDeadlift / 3.0, 1) * 25;
+      const scoreSQ = Math.min(ratioSquat / 2.6, 1) * 25;
+      const scoreBN = Math.min(ratioBench / 1.9, 1) * 20;
+      const scorePU = Math.min(pullups / 35, 1) * 15;
+      const scorePS = Math.min(pushups / 100, 1) * 15;
+
+      let combatScore = scoreDL + scoreSQ + scoreBN + scorePU + scorePS;
+
+      // Ajuste por IMC (fidelidad al físico atlético)
+      const imc = weight / ((height / 100) ** 2);
+      if (imc > 32) {
+        combatScore *= 0.85; // Penalización ligera por sobrepeso/masa excesiva que resta velocidad
+      }
+
+      const finalScore = Math.min(Math.round(combatScore), 100);
+
+      let rango = "Peleador Principiante";
+      if (finalScore >= 95) rango = "Peleador Apex / Demonio (100% Peak)";
+      else if (finalScore >= 75) rango = "Atleta de Combate Profesional";
+      else if (finalScore >= 50) rango = "Acondicionado para Pelea";
+
+      document.getElementById('numCombate').innerText = finalScore + "/100";
+      document.getElementById('detCombate').innerHTML = `<strong>Categoría:</strong> ${rango}<br>Puntaje calculado según tu relación Fuerza/Peso y agilidad.`;
+      document.getElementById('resCombate').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
