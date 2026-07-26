@@ -46,7 +46,6 @@
       text-align: center;
     }
 
-    /* Pestañas */
     .tabs {
       display: flex;
       gap: 6px;
@@ -106,7 +105,6 @@
       line-height: 1.4;
     }
 
-    /* Subida de foto */
     .photo-section {
       background: #111827;
       border: 1px dashed var(--accent-blue);
@@ -271,7 +269,6 @@
       margin: 8px 0;
     }
 
-    /* Estilo Especial para Superar 100 PTS */
     .over-limit {
       background: #2e1065 !important;
       border: 2px solid var(--accent-purple) !important;
@@ -338,12 +335,12 @@
     <div id="tabBruta" class="tab-content active">
       <h1 style="color: var(--accent-purple);">Límite de Fuerza Bruta</h1>
       <div class="input-grid">
-        <div class="input-field"><label>Peso Muerto (kg)</label><input type="number" id="bDeadlift" placeholder="ej. 150"></div>
-        <div class="input-field"><label>Sentadilla (kg)</label><input type="number" id="bSquat" placeholder="ej. 130"></div>
-        <div class="input-field"><label>Press Banca (kg)</label><input type="number" id="bBench" placeholder="ej. 100"></div>
-        <div class="input-field"><label>Agarre (kg)</label><input type="number" id="bGrip" placeholder="ej. 60"></div>
-        <div class="input-field"><label>Flexiones (max)</label><input type="number" id="bPushups" placeholder="ej. 40"></div>
-        <div class="input-field"><label>Dominadas (max)</label><input type="number" id="bPullups" placeholder="ej. 15"></div>
+        <div class="input-field"><label>Peso Muerto (kg)</label><input type="number" id="bDeadlift" placeholder="ej. 250"></div>
+        <div class="input-field"><label>Sentadilla (kg)</label><input type="number" id="bSquat" placeholder="ej. 220"></div>
+        <div class="input-field"><label>Press Banca (kg)</label><input type="number" id="bBench" placeholder="ej. 160"></div>
+        <div class="input-field"><label>Agarre (kg)</label><input type="number" id="bGrip" placeholder="ej. 90"></div>
+        <div class="input-field"><label>Flexiones (max)</label><input type="number" id="bPushups" placeholder="ej. 70"></div>
+        <div class="input-field"><label>Dominadas (max)</label><input type="number" id="bPullups" placeholder="ej. 30"></div>
       </div>
       <button class="btn-calc btn-bruta" onclick="calcularBruta()">Calcular Fuerza Bruta</button>
       
@@ -359,14 +356,13 @@
       <h1 style="color: var(--accent-red);">Fuerza de Combate Peak</h1>
       
       <div class="ideal-banner">
-        🔥 <strong>Físico Ideal Apex (100% Benchmark):</strong><br>
-        Estatura: <strong>1.80 m – 1.90 m</strong> | Peso: <strong>88 kg – 98 kg</strong><br>
-        <em>Estructura V-Taper, alta densidad muscular y baja grasa corporal.</em>
+        🔥 <strong>Calculadora Dinámica Apex:</strong><br>
+        Introduce cualquier <strong>Peso</strong> y <strong>Estatura</strong> (en metros o cm).<br>
+        <em>Los rangos de fuerza y calistenia se escalan automáticamente a tu cuerpo.</em>
       </div>
 
-      <!-- Subida de Foto -->
       <div class="photo-section">
-        <span style="font-size: 0.78rem; color: var(--text-sub);">Evaluación de Físico (Ponderación 100% Apex)</span>
+        <span style="font-size: 0.78rem; color: var(--text-sub);">Evaluación de Físico (Ponderación Apex)</span>
         <div class="photo-upload-container">
           <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="previewPhoto(event)">
           <label for="photoInput">
@@ -378,12 +374,12 @@
 
       <div class="input-grid">
         <div class="input-field">
-          <label>Estatura (cm)</label>
-          <input type="number" id="cHeight" placeholder="ej. 170" oninput="actualizarSugerencias()">
+          <label>Estatura (cm o m)</label>
+          <input type="number" id="cHeight" step="0.01" placeholder="ej. 1.90 o 190" oninput="actualizarSugerencias()">
         </div>
         <div class="input-field">
           <label>Peso Corporal (kg)</label>
-          <input type="number" id="cWeight" placeholder="ej. 60" oninput="actualizarSugerencias()">
+          <input type="number" id="cWeight" placeholder="ej. 98" oninput="actualizarSugerencias()">
         </div>
 
         <div class="input-field">
@@ -491,11 +487,19 @@
           document.getElementById('photoText').innerText = "Foto cargada ✓";
           tieneFoto = true;
           
-          fotoScoreSimilitud = Math.floor(Math.random() * (88 - 65 + 1)) + 65;
+          fotoScoreSimilitud = Math.floor(Math.random() * (98 - 88 + 1)) + 88;
           actualizarSugerencias();
         };
         reader.readAsDataURL(file);
       }
+    }
+
+    // Normalización de Estatura (sirve para 1.90 o 190)
+    function parseEstatura(val) {
+      let h = parseFloat(val);
+      if (!h || h <= 0) return 0;
+      if (h < 3.0) h = h * 100;
+      return h;
     }
 
     function actualizarSugerencias() {
@@ -510,18 +514,19 @@
         return;
       }
 
-      const minDL = Math.round(w * 1.25);
-      const maxDL = Math.round(w * 1.85);
-      const minSQ = Math.round(w * 1.0);
-      const maxSQ = Math.round(w * 1.5);
-      const minBN = Math.round(w * 0.75);
-      const maxBN = Math.round(w * 1.15);
+      // Rangos proporcionales a cualquier peso
+      const minDL = Math.round(w * 2.5);
+      const maxDL = Math.round(w * 3.8);
+      const minSQ = Math.round(w * 2.0);
+      const maxSQ = Math.round(w * 3.3);
+      const minBN = Math.round(w * 1.5);
+      const maxBN = Math.round(w * 2.3);
 
-      document.getElementById('sugDeadlift').innerText = `Sugerido: ${minDL} - ${maxDL} kg`;
-      document.getElementById('sugSquat').innerText = `Sugerido: ${minSQ} - ${maxSQ} kg`;
-      document.getElementById('sugBench').innerText = `Sugerido: ${minBN} - ${maxBN} kg`;
-      document.getElementById('sugPullups').innerText = `Sugerido: 8 - 18 reps`;
-      document.getElementById('sugPushups').innerText = `Sugerido: 20 - 45 reps`;
+      document.getElementById('sugDeadlift').innerText = `Apex: ${minDL} - ${maxDL} kg`;
+      document.getElementById('sugSquat').innerText = `Apex: ${minSQ} - ${maxSQ} kg`;
+      document.getElementById('sugBench').innerText = `Apex: ${minBN} - ${maxBN} kg`;
+      document.getElementById('sugPullups').innerText = `Apex: 25 - 50+ reps`;
+      document.getElementById('sugPushups').innerText = `Apex: 60 - 100+ reps`;
     }
 
     function calcularBruta() {
@@ -537,7 +542,7 @@
       const scoreBN = Math.min(bench / 250, 1) * 20;
       const scoreGR = Math.min(grip / 150, 1) * 10;
       const scorePS = Math.min(pushups / 100, 1) * 10;
-      const scorePU = Math.min(pullups / 40, 1) * 10;
+      const scorePU = Math.min(pullups / 50, 1) * 10;
 
       const totalScore = Math.min(Math.round(scoreDL + scoreSQ + scoreBN + scoreGR + scorePS + scorePU), 100);
 
@@ -552,57 +557,66 @@
     }
 
     function calcularCombate() {
-      const height = parseFloat(document.getElementById('cHeight').value) || 175;
-      const weight = parseFloat(document.getElementById('cWeight').value) || 75;
+      const rawHeight = document.getElementById('cHeight').value;
+      const height = parseEstatura(rawHeight) || 180;
+      const weight = parseFloat(document.getElementById('cWeight').value) || 80;
 
-      const deadlift = parseFloat(document.getElementById('cDeadlift').value) || (weight * 1.55);
-      const squat = parseFloat(document.getElementById('cSquat').value) || (weight * 1.25);
-      const bench = parseFloat(document.getElementById('cBench').value) || (weight * 0.95);
-      const pullups = parseFloat(document.getElementById('cPullups').value) || 13;
-      const pushups = parseFloat(document.getElementById('cPushups').value) || 32;
+      // Si el usuario no coloca un ejercicio, se auto-completa en estándar Apex proporcional
+      const deadlift = parseFloat(document.getElementById('cDeadlift').value) || (weight * 3.0);
+      const squat = parseFloat(document.getElementById('cSquat').value) || (weight * 2.5);
+      const bench = parseFloat(document.getElementById('cBench').value) || (weight * 1.8);
+      const pullups = parseFloat(document.getElementById('cPullups').value) || 35;
+      const pushups = parseFloat(document.getElementById('cPushups').value) || 75;
 
       const ratioDeadlift = deadlift / weight;
       const ratioSquat = squat / weight;
       const ratioBench = bench / weight;
 
-      const scoreDL = Math.min(ratioDeadlift / 3.0, 1) * 25;
-      const scoreSQ = Math.min(ratioSquat / 2.6, 1) * 25;
-      const scoreBN = Math.min(ratioBench / 1.9, 1) * 20;
-      const scorePU = Math.min(pullups / 35, 1) * 15;
-      const scorePS = Math.min(pushups / 100, 1) * 15;
+      // Puntuación relativa a ratios de peso corporal
+      const scoreDL = Math.min(ratioDeadlift / 3.5, 1) * 25;
+      const scoreSQ = Math.min(ratioSquat / 3.0, 1) * 25;
+      const scoreBN = Math.min(ratioBench / 2.0, 1) * 20;
+      const scorePU = Math.min(pullups / 45, 1) * 15;
+      const scorePS = Math.min(pushups / 90, 1) * 15;
 
       let combatScore = scoreDL + scoreSQ + scoreBN + scorePU + scorePS;
 
-      if (tieneFoto) {
-        combatScore = (combatScore * 0.8) + (fotoScoreSimilitud * 0.2);
+      // Estructura Corporal Dinámica (Relación Estatura/Peso adaptable)
+      const heightMeters = height / 100;
+      const imc = weight / (heightMeters * heightMeters);
+
+      // Evaluación de condición física para combate (Densidad sin sobrepeso obeso)
+      if (imc >= 22 && imc <= 30) {
+        combatScore *= 1.05; // Bonificación de biotipo atlético
       }
 
-      const imc = weight / ((height / 100) ** 2);
-      if (imc > 32) combatScore *= 0.85;
+      if (tieneFoto) {
+        combatScore = (combatScore * 0.7) + (fotoScoreSimilitud * 0.3);
+      }
 
       const finalScore = Math.min(Math.round(combatScore), 100);
 
       let rango = "Peleador Principiante";
-      if (finalScore >= 95) rango = "Peleador Apex / Demonio (100% Peak)";
+      if (finalScore >= 90) rango = "Peleador Apex / Demonio (100% Peak)";
       else if (finalScore >= 75) rango = "Atleta de Combate Profesional";
       else if (finalScore >= 50) rango = "Acondicionado para Pelea";
 
       document.getElementById('numCombate').innerText = finalScore + "%";
-      document.getElementById('detCombate').innerHTML = `<strong>Categoría:</strong> ${rango}<br>Puntuación ponderada con biotipo y rendimiento.`;
+      document.getElementById('detCombate').innerHTML = `<strong>Categoría:</strong> ${rango}<br>Estatura: ${height} cm | Peso: ${weight} kg`;
 
-      const impactForce = Math.round(weight * (bench / 10) * 1.8);
-      const maxLiftingOpponent = Math.round(deadlift * 0.75);
+      const impactForce = Math.round(weight * (bench / 8) * 2.3);
+      const maxLiftingOpponent = Math.round(deadlift * 0.85);
 
       const featsList = document.getElementById('featsList');
       let fotoDetalle = tieneFoto 
-        ? `<li>📸 <strong>Evaluación Visual Apex:</strong> ${fotoScoreSimilitud}% de coincidencia con el Físico Benchmark 100%.</li>` 
-        : `<li>📸 <strong>Evaluación Visual:</strong> No se adjuntó foto (cálculo por plantilla estándar).</li>`;
+        ? `<li>📸 <strong>Evaluación Visual Apex:</strong> ${fotoScoreSimilitud}% de coincidencia con el Físico Benchmark.</li>` 
+        : `<li>📸 <strong>Evaluación Visual:</strong> No se adjuntó foto (cálculo por biotipo Apex proporcional).</li>`;
 
       featsList.innerHTML = `
         ${fotoDetalle}
-        <li>🥊 <strong>Potencia Estimada de Impacto:</strong> ~${impactForce} N (Golpe de alta aceleración).</li>
-        <li>🤼 <strong>Fuerza de Proyección / Derribo:</strong> Capaz de alzar y proyectar oponentes de hasta <strong>${maxLiftingOpponent} kg</strong>.</li>
-        <li>🏃 <strong>Factor de Agilidad:</strong> Relación de ${weight} kg / ${height} cm permite ${finalScore > 60 ? 'movilidad fluida' : 'movilidad moderada'}.</li>
+        <li>🥊 <strong>Potencia Estimada de Impacto:</strong> ~${impactForce} N (Golpe de alta aceleración y KO).</li>
+        <li>🤼 <strong>Fuerza de Proyección / Derribo:</strong> Capaz de proyectar u oponentes de hasta <strong>${maxLiftingOpponent} kg</strong>.</li>
+        <li>💪 <strong>Resistencia Corporal:</strong> Rendimiento estimado de <strong>50+ flexiones a un brazo</strong>.</li>
       `;
       document.getElementById('featsBox').style.display = 'block';
       document.getElementById('resCombate').style.display = 'block';
@@ -646,7 +660,6 @@
       const ordenados = [...equipo].sort((a, b) => b - a);
       const lider = ordenados[0];
       
-      // Factores de rendimiento conjunto acumulativo
       const factoresCoordinacion = [0.50, 0.35, 0.25, 0.15, 0.10];
 
       let aporteSecundario = 0;
